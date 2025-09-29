@@ -133,6 +133,9 @@ export function AppProvider({ children }) {
     const token = localStorage.getItem('auth_token');
     if (token) {
       checkAuth();
+    } else {
+      // Если токена нет, сразу устанавливаем loading в false
+      dispatch({ type: ActionTypes.SET_LOADING, payload: false });
     }
   }, []);
 

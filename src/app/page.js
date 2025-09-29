@@ -1,103 +1,152 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useApp } from './contexts/AppContext';
+import CustomButton from './components/CustomButton';
+import { authAPI } from './utils/api';
+import { withVibration, VIBRATION_PATTERNS } from './utils/vibration';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
+  const { isAuthenticated, user, loading } = useApp();
+  const [authLoading, setAuthLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // Проверяем доступность Telegram WebApp
+  const isTelegramAvailable = typeof window !== 'undefined' && window.Telegram?.WebApp;
+
+  const handleTelegramLogin = async () => {
+    try {
+      setAuthLoading(true);
+      setError(null);
+
+      if (!isTelegramAvailable) {
+        throw new Error('Откройте приложение через Telegram для входа');
+      }
+
+      const tg = window.Telegram.WebApp;
+      const initData = tg.initData;
+      
+      if (!initData) {
+        throw new Error('Данные инициализации Telegram не найдены');
+      }
+
+      const response = await authAPI.telegramLogin(initData);
+      
+      if (response.access_token) {
+        localStorage.setItem('auth_token', response.access_token);
+        window.location.reload(); // Перезагружаем для обновления состояния
+      }
+    } catch (error) {
+      console.error('Telegram login failed:', error);
+      setError(error.message);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLoginWithVibration = withVibration(handleTelegramLogin, VIBRATION_PATTERNS.CONFIRM);
+
+  useEffect(() => {
+    // Если пользователь аутентифицирован, перенаправляем на проекты
+    if (isAuthenticated && user) {
+      router.push('/projects');
+    }
+  }, [isAuthenticated, user, router]);
+
+  // Показываем загрузку
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Если пользователь аутентифицирован, не показываем главную страницу
+  if (isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="text-center max-w-4xl mx-auto">
+        {/* Заголовок */}
+        <motion.h1 
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-6xl md:text-8xl font-bold text-white mb-6 drop-shadow-lg"
+        >
+          MarTasks
+        </motion.h1>
+        
+        {/* Подзаголовок */}
+        <motion.h2 
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-2xl md:text-3xl text-white/90 mb-8 font-light"
+        >
+          Ваш персональный трекер задач
+        </motion.h2>
+        
+        {/* Описание */}
+        <motion.p 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed"
+        >
+          Организуйте свои задачи, отслеживайте прогресс и достигайте целей 
+          с помощью нашего интуитивного инструмента управления задачами.
+        </motion.p>
+        
+        {/* Кнопка авторизации */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="max-w-md mx-auto space-y-4"
+        >
+          {/* Ошибка */}
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-center"
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {/* Кнопка входа */}
+          <CustomButton 
+            onClick={handleLoginWithVibration}
+            disabled={authLoading || !isTelegramAvailable}
+            vibrationPattern={VIBRATION_PATTERNS.CONFIRM}
+            className={`
+              ${!isTelegramAvailable 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-white text-[#7370fd] hover:bg-gray-50'
+              }
+            `}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {authLoading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-5 h-5 border-2 border-[#7370fd] border-t-transparent rounded-full animate-spin"></div>
+                <span>Вход...</span>
+              </div>
+            ) : (
+              isTelegramAvailable 
+                ? 'Начать работу' 
+                : 'Откройте через Telegram'
+            )}
+          </CustomButton>
+        </motion.div>
+      </div>
     </div>
   );
 }

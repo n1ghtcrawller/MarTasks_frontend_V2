@@ -1,0 +1,2443 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Telegram Task Tracker",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/{full_path}": {
+        "options": {
+          "summary": "Preflight Handler",
+          "operationId": "preflight_handler__full_path__options",
+          "parameters": [
+            {
+              "name": "full_path",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Full Path"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/": {
+        "get": {
+          "summary": "Root",
+          "operationId": "root__get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/auth/telegram-login": {
+        "post": {
+          "tags": [
+            "auth"
+          ],
+          "summary": "Telegram Login",
+          "description": "Логин через Telegram Web App.\nЕсли передан ref_code, новый пользователь получает invited_by.",
+          "operationId": "telegram_login_auth_telegram_login_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelegramLoginRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Token"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/me": {
+        "get": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Read Me",
+          "description": "Получение профиля текущего пользователя",
+          "operationId": "read_me_users_me_get",
+          "parameters": [
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Update Me",
+          "description": "Обновление профиля текущего пользователя",
+          "operationId": "update_me_users_me_put",
+          "parameters": [
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/": {
+        "post": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Create Project",
+          "description": "Создать новый проект",
+          "operationId": "create_project_projects__post",
+          "parameters": [
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Get User Projects",
+          "description": "Получить проекты пользователя",
+          "operationId": "get_user_projects_projects__get",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Номер страницы",
+                "default": 1,
+                "title": "Page"
+              },
+              "description": "Номер страницы"
+            },
+            {
+              "name": "per_page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "description": "Количество проектов на странице",
+                "default": 10,
+                "title": "Per Page"
+              },
+              "description": "Количество проектов на странице"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectListResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}": {
+        "get": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Get Project",
+          "description": "Получить проект по ID",
+          "operationId": "get_project_projects__project_id__get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Update Project",
+          "description": "Обновить проект",
+          "operationId": "update_project_projects__project_id__put",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Delete Project",
+          "description": "Удалить проект (только владелец)",
+          "operationId": "delete_project_projects__project_id__delete",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/uid/{project_uid}": {
+        "get": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Get Project By Uid",
+          "description": "Получить проект по UID",
+          "operationId": "get_project_by_uid_projects_uid__project_uid__get",
+          "parameters": [
+            {
+              "name": "project_uid",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "title": "Project Uid"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}/members": {
+        "get": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Get Project Members",
+          "description": "Получить участников проекта",
+          "operationId": "get_project_members_projects__project_id__members_get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ProjectMemberOut"
+                    },
+                    "title": "Response Get Project Members Projects  Project Id  Members Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Add Project Member",
+          "description": "Добавить участника в проект",
+          "operationId": "add_project_member_projects__project_id__members_post",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMemberCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectMemberOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}/invite": {
+        "post": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Invite User To Project",
+          "description": "Пригласить пользователя в проект по Telegram username",
+          "operationId": "invite_user_to_project_projects__project_id__invite_post",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectInviteRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectMemberOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}/members/{user_id}/role": {
+        "put": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Update Member Role",
+          "description": "Обновить роль участника проекта",
+          "operationId": "update_member_role_projects__project_id__members__user_id__role_put",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMemberUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectMemberOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}/members/{user_id}": {
+        "delete": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Remove Project Member",
+          "description": "Удалить участника из проекта",
+          "operationId": "remove_project_member_projects__project_id__members__user_id__delete",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "User Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/projects/{project_id}/leave": {
+        "post": {
+          "tags": [
+            "projects"
+          ],
+          "summary": "Leave Project",
+          "description": "Покинуть проект",
+          "operationId": "leave_project_projects__project_id__leave_post",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "title": "Project Id"
+              }
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/projects/{project_id}/tasks": {
+        "post": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Create Task",
+          "description": "Создать новую задачу в проекте",
+          "operationId": "create_task_tasks_projects__project_id__tasks_post",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID проекта",
+                "title": "Project Id"
+              },
+              "description": "ID проекта"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Get Project Tasks",
+          "description": "Получить задачи проекта",
+          "operationId": "get_project_tasks_tasks_projects__project_id__tasks_get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID проекта",
+                "title": "Project Id"
+              },
+              "description": "ID проекта"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Номер страницы",
+                "default": 1,
+                "title": "Page"
+              },
+              "description": "Номер страницы"
+            },
+            {
+              "name": "per_page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "description": "Количество задач на странице",
+                "default": 10,
+                "title": "Per Page"
+              },
+              "description": "Количество задач на странице"
+            },
+            {
+              "name": "status",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskStatus"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Фильтр по статусу",
+                "title": "Status"
+              },
+              "description": "Фильтр по статусу"
+            },
+            {
+              "name": "priority",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskPriority"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Фильтр по приоритету",
+                "title": "Priority"
+              },
+              "description": "Фильтр по приоритету"
+            },
+            {
+              "name": "assigned_to",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Фильтр по назначенному пользователю",
+                "title": "Assigned To"
+              },
+              "description": "Фильтр по назначенному пользователю"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskListResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/tasks/my": {
+        "get": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Get My Tasks",
+          "description": "Получить мои задачи (созданные мной или назначенные мне)",
+          "operationId": "get_my_tasks_tasks_tasks_my_get",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Номер страницы",
+                "default": 1,
+                "title": "Page"
+              },
+              "description": "Номер страницы"
+            },
+            {
+              "name": "per_page",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "maximum": 100,
+                "minimum": 1,
+                "description": "Количество задач на странице",
+                "default": 10,
+                "title": "Per Page"
+              },
+              "description": "Количество задач на странице"
+            },
+            {
+              "name": "status",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskStatus"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Фильтр по статусу",
+                "title": "Status"
+              },
+              "description": "Фильтр по статусу"
+            },
+            {
+              "name": "priority",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskPriority"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Фильтр по приоритету",
+                "title": "Priority"
+              },
+              "description": "Фильтр по приоритету"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskListResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/tasks/{task_id}": {
+        "get": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Get Task",
+          "description": "Получить задачу по ID",
+          "operationId": "get_task_tasks_tasks__task_id__get",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Update Task",
+          "description": "Обновить задачу",
+          "operationId": "update_task_tasks_tasks__task_id__put",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskUpdate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Delete Task",
+          "description": "Удалить задачу",
+          "operationId": "delete_task_tasks_tasks__task_id__delete",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/tasks/{task_id}/assign": {
+        "post": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Assign Task",
+          "description": "Назначить задачу пользователю",
+          "operationId": "assign_task_tasks_tasks__task_id__assign_post",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskAssignRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/tasks/{task_id}/take": {
+        "post": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Take Task",
+          "description": "Взять задачу на себя",
+          "operationId": "take_task_tasks_tasks__task_id__take_post",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/tasks/{task_id}/status": {
+        "put": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Update Task Status",
+          "description": "Обновить статус задачи",
+          "operationId": "update_task_status_tasks_tasks__task_id__status_put",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStatusUpdateRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/tasks/{task_id}/priority": {
+        "put": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Update Task Priority",
+          "description": "Обновить приоритет задачи",
+          "operationId": "update_task_priority_tasks_tasks__task_id__priority_put",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID задачи",
+                "title": "Task Id"
+              },
+              "description": "ID задачи"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskPriorityUpdateRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/tasks/projects/{project_id}/tasks/statistics": {
+        "get": {
+          "tags": [
+            "tasks"
+          ],
+          "summary": "Get Task Statistics",
+          "description": "Получить статистику задач по проекту",
+          "operationId": "get_task_statistics_tasks_projects__project_id__tasks_statistics_get",
+          "parameters": [
+            {
+              "name": "project_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "description": "ID проекта",
+                "title": "Project Id"
+              },
+              "description": "ID проекта"
+            },
+            {
+              "name": "authorization",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "title": "Authorization"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+  
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "ProfileUpdate": {
+          "properties": {
+            "first_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "First Name"
+            },
+            "verified_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verified Status"
+            }
+          },
+          "type": "object",
+          "title": "ProfileUpdate"
+        },
+        "ProjectCreate": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            }
+          },
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "title": "ProjectCreate"
+        },
+        "ProjectInviteRequest": {
+          "properties": {
+            "telegram_username": {
+              "type": "string",
+              "title": "Telegram Username"
+            },
+            "role": {
+              "$ref": "#/components/schemas/ProjectRole",
+              "default": "member"
+            }
+          },
+          "type": "object",
+          "required": [
+            "telegram_username"
+          ],
+          "title": "ProjectInviteRequest"
+        },
+        "ProjectListResponse": {
+          "properties": {
+            "projects": {
+              "items": {
+                "$ref": "#/components/schemas/ProjectOut"
+              },
+              "type": "array",
+              "title": "Projects"
+            },
+            "total": {
+              "type": "integer",
+              "title": "Total"
+            },
+            "page": {
+              "type": "integer",
+              "title": "Page"
+            },
+            "per_page": {
+              "type": "integer",
+              "title": "Per Page"
+            }
+          },
+          "type": "object",
+          "required": [
+            "projects",
+            "total",
+            "page",
+            "per_page"
+          ],
+          "title": "ProjectListResponse"
+        },
+        "ProjectMemberCreate": {
+          "properties": {
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "role": {
+              "$ref": "#/components/schemas/ProjectRole",
+              "default": "member"
+            }
+          },
+          "type": "object",
+          "required": [
+            "user_id"
+          ],
+          "title": "ProjectMemberCreate"
+        },
+        "ProjectMemberOut": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            },
+            "role": {
+              "$ref": "#/components/schemas/ProjectRole"
+            },
+            "joined_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Joined At"
+            },
+            "invited_by": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Invited By"
+            },
+            "user": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/UserOut"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "project_id",
+            "user_id",
+            "role",
+            "joined_at"
+          ],
+          "title": "ProjectMemberOut"
+        },
+        "ProjectMemberUpdate": {
+          "properties": {
+            "role": {
+              "$ref": "#/components/schemas/ProjectRole"
+            }
+          },
+          "type": "object",
+          "required": [
+            "role"
+          ],
+          "title": "ProjectMemberUpdate"
+        },
+        "ProjectOut": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "uid": {
+              "type": "string",
+              "title": "Uid"
+            },
+            "name": {
+              "type": "string",
+              "title": "Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "owner_id": {
+              "type": "integer",
+              "title": "Owner Id"
+            },
+            "is_active": {
+              "type": "boolean",
+              "title": "Is Active"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            },
+            "owner": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/UserOut"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "members_count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Members Count"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "uid",
+            "name",
+            "description",
+            "owner_id",
+            "is_active",
+            "created_at",
+            "updated_at"
+          ],
+          "title": "ProjectOut"
+        },
+        "ProjectRole": {
+          "type": "string",
+          "enum": [
+            "owner",
+            "admin",
+            "member",
+            "viewer"
+          ],
+          "title": "ProjectRole"
+        },
+        "ProjectUpdate": {
+          "properties": {
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "is_active": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Is Active"
+            }
+          },
+          "type": "object",
+          "title": "ProjectUpdate"
+        },
+        "TaskAssignRequest": {
+          "properties": {
+            "assigned_to": {
+              "type": "integer",
+              "title": "Assigned To"
+            }
+          },
+          "type": "object",
+          "required": [
+            "assigned_to"
+          ],
+          "title": "TaskAssignRequest"
+        },
+        "TaskCreate": {
+          "properties": {
+            "title": {
+              "type": "string",
+              "title": "Title"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "assigned_to": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned To"
+            },
+            "priority": {
+              "$ref": "#/components/schemas/TaskPriority",
+              "default": "medium"
+            },
+            "due_date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Due Date"
+            }
+          },
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "title": "TaskCreate"
+        },
+        "TaskListResponse": {
+          "properties": {
+            "tasks": {
+              "items": {
+                "$ref": "#/components/schemas/TaskOut"
+              },
+              "type": "array",
+              "title": "Tasks"
+            },
+            "total": {
+              "type": "integer",
+              "title": "Total"
+            },
+            "page": {
+              "type": "integer",
+              "title": "Page"
+            },
+            "per_page": {
+              "type": "integer",
+              "title": "Per Page"
+            }
+          },
+          "type": "object",
+          "required": [
+            "tasks",
+            "total",
+            "page",
+            "per_page"
+          ],
+          "title": "TaskListResponse"
+        },
+        "TaskOut": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "title": {
+              "type": "string",
+              "title": "Title"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "project_id": {
+              "type": "integer",
+              "title": "Project Id"
+            },
+            "created_by": {
+              "type": "integer",
+              "title": "Created By"
+            },
+            "assigned_to": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned To"
+            },
+            "status": {
+              "$ref": "#/components/schemas/TaskStatus"
+            },
+            "priority": {
+              "$ref": "#/components/schemas/TaskPriority"
+            },
+            "due_date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Due Date"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Updated At"
+            },
+            "completed_at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Completed At"
+            },
+            "creator": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/UserOut"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "assignee": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/UserOut"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "title",
+            "description",
+            "project_id",
+            "created_by",
+            "assigned_to",
+            "status",
+            "priority",
+            "due_date",
+            "created_at",
+            "updated_at",
+            "completed_at"
+          ],
+          "title": "TaskOut"
+        },
+        "TaskPriority": {
+          "type": "string",
+          "enum": [
+            "very_low",
+            "low",
+            "medium",
+            "high",
+            "blocker"
+          ],
+          "title": "TaskPriority"
+        },
+        "TaskPriorityUpdateRequest": {
+          "properties": {
+            "priority": {
+              "$ref": "#/components/schemas/TaskPriority"
+            }
+          },
+          "type": "object",
+          "required": [
+            "priority"
+          ],
+          "title": "TaskPriorityUpdateRequest"
+        },
+        "TaskStatus": {
+          "type": "string",
+          "enum": [
+            "backlog",
+            "todo",
+            "in_progress",
+            "done"
+          ],
+          "title": "TaskStatus"
+        },
+        "TaskStatusUpdateRequest": {
+          "properties": {
+            "status": {
+              "$ref": "#/components/schemas/TaskStatus"
+            }
+          },
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "title": "TaskStatusUpdateRequest"
+        },
+        "TaskUpdate": {
+          "properties": {
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Title"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Description"
+            },
+            "assigned_to": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assigned To"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "priority": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskPriority"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "due_date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Due Date"
+            }
+          },
+          "type": "object",
+          "title": "TaskUpdate"
+        },
+        "TelegramLoginRequest": {
+          "properties": {
+            "init_data": {
+              "type": "string",
+              "title": "Init Data"
+            },
+            "ref_code": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ref Code"
+            }
+          },
+          "type": "object",
+          "required": [
+            "init_data"
+          ],
+          "title": "TelegramLoginRequest"
+        },
+        "Token": {
+          "properties": {
+            "access_token": {
+              "type": "string",
+              "title": "Access Token"
+            },
+            "token_type": {
+              "type": "string",
+              "title": "Token Type",
+              "default": "bearer"
+            },
+            "is_new": {
+              "type": "boolean",
+              "title": "Is New"
+            }
+          },
+          "type": "object",
+          "required": [
+            "access_token",
+            "is_new"
+          ],
+          "title": "Token"
+        },
+        "UserOut": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "telegram_id": {
+              "type": "integer",
+              "title": "Telegram Id"
+            },
+            "username": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Username"
+            },
+            "first_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "First Name"
+            },
+            "last_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last Name"
+            },
+            "verified_status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verified Status"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "telegram_id",
+            "username",
+            "first_name",
+            "last_name"
+          ],
+          "title": "UserOut"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      }
+    }
+  }

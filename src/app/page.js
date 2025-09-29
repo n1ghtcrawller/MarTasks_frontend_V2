@@ -13,16 +13,50 @@ export default function Home() {
   const { isAuthenticated, user, loading } = useApp();
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [telegramReady, setTelegramReady] = useState(false);
 
   // Проверяем доступность Telegram WebApp
-  const isTelegramAvailable = typeof window !== 'undefined' && window.Telegram?.WebApp;
+  useEffect(() => {
+    const checkTelegram = () => {
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        setTelegramReady(true);
+        return true;
+      }
+      return false;
+    };
+
+    // Проверяем сразу
+    if (checkTelegram()) {
+      return;
+    }
+
+    // Если не готов, ждем загрузки
+    const interval = setInterval(() => {
+      if (checkTelegram()) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    // Очищаем интервал через 5 секунд
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  const isTelegramAvailable = telegramReady;
 
   const handleTelegramLogin = async () => {
     try {
       setAuthLoading(true);
       setError(null);
 
-      if (!isTelegramAvailable) {
+      // Проверяем Telegram WebApp динамически
+      if (typeof window === 'undefined' || !window.Telegram?.WebApp) {
         throw new Error('Откройте приложение через Telegram для входа');
       }
 
@@ -32,6 +66,8 @@ export default function Home() {
       if (!initData) {
         throw new Error('Данные инициализации Telegram не найдены');
       }
+
+      console.log('Telegram initData:', initData); // Для отладки
 
       const response = await authAPI.telegramLogin(initData);
       
@@ -125,16 +161,23 @@ export default function Home() {
           {/* Кнопка входа */}
           <CustomButton 
             onClick={handleLoginWithVibration}
-            disabled={authLoading}
+            disabled={authLoading || !isTelegramAvailable}
             vibrationPattern={VIBRATION_PATTERNS.CONFIRM}
-            className={'bg-white text-[#7370fd] hover:bg-gray-50'}>
+            className={`
+              ${!isTelegramAvailable 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-white text-[#7370fd] hover:bg-gray-50'
+              }
+            `}>
             {authLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-5 h-5 border-2 border-[#7370fd] border-t-transparent rounded-full animate-spin"></div>
                 <span>Вход...</span>
               </div>
-            ) : ( 
-                 'Начать работу' 
+            ) : (
+              isTelegramAvailable 
+                ? 'Начать работу' 
+                : 'Загрузка Telegram...'
             )}
           </CustomButton>
         </motion.div>

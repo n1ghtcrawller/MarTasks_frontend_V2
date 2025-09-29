@@ -119,7 +119,7 @@ export default function CreateProjectPage() {
   const handleAddTagWithVibration = withVibration(handleAddTag, VIBRATION_PATTERNS.BUTTON_TAP);
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen p-4 mt-20">
       {/* Заголовок */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}

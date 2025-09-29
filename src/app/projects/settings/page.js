@@ -295,7 +295,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 mt-20">
       {/* Заголовок */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}

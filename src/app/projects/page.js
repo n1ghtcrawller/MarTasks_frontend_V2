@@ -37,7 +37,7 @@ export default function ProjectsPage() {
   const handleGoToCreatePage = withVibration(() => router.push('/projects/create'), VIBRATION_PATTERNS.NAVIGATION);
 
   return (
-    <div className="p-4">
+    <div className="p-4 mt-20">
       {/* Заголовок */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}

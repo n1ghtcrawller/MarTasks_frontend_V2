@@ -64,16 +64,10 @@ export default function Home() {
       setAuthLoading(true);
       setError(null);
 
-      // Проверяем Telegram WebApp динамически
-      if (typeof window === 'undefined' || !window.Telegram?.WebApp) {
-        throw new Error('Откройте приложение через Telegram для входа');
-      }
-
-      const tg = window.Telegram.WebApp;
-      const initData = tg.initData;
-      
-      if (!initData) {
-        throw new Error('Данные инициализации Telegram не найдены');
+      // Получаем initData, если доступен
+      let initData = '';
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        initData = window.Telegram.WebApp.initData || '';
       }
 
       console.log('Telegram initData:', initData); // Для отладки

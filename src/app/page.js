@@ -139,10 +139,8 @@ export default function Home() {
                 <div className="w-5 h-5 border-2 border-[#7370fd] border-t-transparent rounded-full animate-spin"></div>
                 <span>Вход...</span>
               </div>
-            ) : (
-              isTelegramAvailable 
-                ? 'Начать работу' 
-                : 'Откройте через Telegram'
+            ) : ( 
+                 'Начать работу' 
             )}
           </CustomButton>
         </motion.div>

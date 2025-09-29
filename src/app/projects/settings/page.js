@@ -12,7 +12,7 @@ import {
   FaTrash,
   FaUserCog,
   FaPalette,
-  FaVibrate
+  FaMobile
 } from 'react-icons/fa';
 import VibrationTest from '../../components/VibrationTest';
 
@@ -79,7 +79,7 @@ export default function SettingsPage() {
     },
     {
       title: 'Вибрация',
-      icon: FaVibrate,
+      icon: FaMobile,
       items: [
         {
           id: 'vibrationTest',
@@ -87,7 +87,7 @@ export default function SettingsPage() {
           description: 'Проверить работу вибрации на вашем устройстве',
           type: 'button',
           action: 'vibrationTest',
-          icon: FaVibrate
+          icon: FaMobile
         }
       ]
     },

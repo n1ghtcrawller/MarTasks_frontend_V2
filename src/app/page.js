@@ -19,6 +19,15 @@ export default function Home() {
   useEffect(() => {
     const checkTelegram = () => {
       if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        
+        // Запрашиваем полноэкранный режим
+        try {
+          tg.requestFullscreen();
+        } catch (error) {
+          console.warn('Failed to request fullscreen:', error);
+        }
+        
         setTelegramReady(true);
         return true;
       }
@@ -161,23 +170,16 @@ export default function Home() {
           {/* Кнопка входа */}
           <CustomButton 
             onClick={handleLoginWithVibration}
-            disabled={authLoading || !isTelegramAvailable}
+            disabled={authLoading}
             vibrationPattern={VIBRATION_PATTERNS.CONFIRM}
-            className={`
-              ${!isTelegramAvailable 
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : 'bg-white text-[#7370fd] hover:bg-gray-50'
-              }
-            `}>
+            className={'bg-white text-[#7370fd] hover:bg-gray-50'}>
             {authLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-5 h-5 border-2 border-[#7370fd] border-t-transparent rounded-full animate-spin"></div>
                 <span>Вход...</span>
               </div>
             ) : (
-              isTelegramAvailable 
-                ? 'Начать работу' 
-                : 'Загрузка Telegram...'
+              'Начать работу'
             )}
           </CustomButton>
         </motion.div>

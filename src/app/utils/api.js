@@ -48,6 +48,14 @@ class ApiClient {
       return await response.json();
     } catch (error) {
       console.error('API request failed:', error);
+      
+      // Если это CORS ошибка или сетевая ошибка, выбрасываем специальную ошибку
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        const corsError = new Error('Network error: Unable to connect to server');
+        corsError.isNetworkError = true;
+        throw corsError;
+      }
+      
       throw error;
     }
   }

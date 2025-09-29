@@ -148,7 +148,15 @@ export function AppProvider({ children }) {
       await loadProjects();
     } catch (error) {
       console.error('Auth check failed:', error);
+      
+      // При ошибке CORS или других сетевых ошибках просто очищаем токен и пользователя
+      if (error.isNetworkError || error.message.includes('Failed to fetch')) {
+        console.warn('Network error during auth check, clearing token');
+        localStorage.removeItem('auth_token');
+      }
+      
       dispatch({ type: ActionTypes.SET_USER, payload: null });
+      dispatch({ type: ActionTypes.SET_LOADING, payload: false });
     }
   };
 

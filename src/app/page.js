@@ -64,13 +64,57 @@ export default function Home() {
       setAuthLoading(true);
       setError(null);
 
-      // Получаем initData, если доступен
+      // Детальная отладка Telegram WebApp
+      console.log('=== Telegram Debug Info ===');
+      console.log('window.Telegram:', window.Telegram);
+      console.log('window.Telegram?.WebApp:', window.Telegram?.WebApp);
+      
+      if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        console.log('WebApp object:', tg);
+        console.log('initData:', tg.initData);
+        console.log('initDataUnsafe:', tg.initDataUnsafe);
+        console.log('version:', tg.version);
+        console.log('platform:', tg.platform);
+        console.log('colorScheme:', tg.colorScheme);
+        console.log('themeParams:', tg.themeParams);
+        console.log('isExpanded:', tg.isExpanded);
+        console.log('viewportHeight:', tg.viewportHeight);
+        console.log('viewportStableHeight:', tg.viewportStableHeight);
+        console.log('headerColor:', tg.headerColor);
+        console.log('backgroundColor:', tg.backgroundColor);
+        console.log('isClosingConfirmationEnabled:', tg.isClosingConfirmationEnabled);
+        console.log('isVerticalSwipesEnabled:', tg.isVerticalSwipesEnabled);
+        console.log('isHorizontalSwipesEnabled:', tg.isHorizontalSwipesEnabled);
+        console.log('user:', tg.initDataUnsafe?.user);
+        console.log('chat:', tg.initDataUnsafe?.chat);
+        console.log('auth_date:', tg.initDataUnsafe?.auth_date);
+        console.log('hash:', tg.initDataUnsafe?.hash);
+      }
+
+      // Получаем initData разными способами
       let initData = '';
       if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         initData = window.Telegram.WebApp.initData || '';
+        
+        // Если initData пустой, попробуем получить из initDataUnsafe
+        if (!initData && window.Telegram.WebApp.initDataUnsafe) {
+          const unsafe = window.Telegram.WebApp.initDataUnsafe;
+          console.log('Trying to reconstruct initData from initDataUnsafe');
+          
+          // Попробуем реконструировать initData
+          const params = new URLSearchParams();
+          if (unsafe.user) params.append('user', JSON.stringify(unsafe.user));
+          if (unsafe.chat) params.append('chat', JSON.stringify(unsafe.chat));
+          if (unsafe.auth_date) params.append('auth_date', unsafe.auth_date);
+          if (unsafe.hash) params.append('hash', unsafe.hash);
+          
+          initData = params.toString();
+          console.log('Reconstructed initData:', initData);
+        }
       }
 
-      console.log('Telegram initData:', initData); // Для отладки
+      console.log('Final initData to send:', initData);
 
       const response = await authAPI.telegramLogin(initData);
       

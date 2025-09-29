@@ -28,8 +28,18 @@ export default function Home() {
           console.warn('Failed to request fullscreen:', error);
         }
         
-        setTelegramReady(true);
-        return true;
+        // Ждем, пока initData станет доступным
+        if (tg.initData || tg.initDataUnsafe) {
+          console.log('Telegram WebApp ready with data:', {
+            initData: tg.initData,
+            initDataUnsafe: tg.initDataUnsafe
+          });
+          setTelegramReady(true);
+          return true;
+        } else {
+          console.log('Telegram WebApp loaded but no initData yet');
+          return false;
+        }
       }
       return false;
     };
@@ -46,10 +56,12 @@ export default function Home() {
       }
     }, 100);
 
-    // Очищаем интервал через 5 секунд
+    // Очищаем интервал через 10 секунд (увеличили время ожидания)
     const timeout = setTimeout(() => {
       clearInterval(interval);
-    }, 5000);
+      console.log('Telegram WebApp timeout - proceeding anyway');
+      setTelegramReady(true); // Устанавливаем ready даже без данных
+    }, 10000);
 
     return () => {
       clearInterval(interval);
@@ -94,6 +106,8 @@ export default function Home() {
 
       // Получаем initData разными способами
       let initData = '';
+      
+      // Способ 1: Из Telegram WebApp
       if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         initData = window.Telegram.WebApp.initData || '';
         
@@ -111,6 +125,26 @@ export default function Home() {
           
           initData = params.toString();
           console.log('Reconstructed initData:', initData);
+        }
+      }
+      
+      // Способ 2: Из URL параметров (если Telegram передает данные через URL)
+      if (!initData && typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlInitData = urlParams.get('tgWebAppData') || urlParams.get('initData');
+        if (urlInitData) {
+          initData = urlInitData;
+          console.log('Found initData in URL:', initData);
+        }
+      }
+      
+      // Способ 3: Из hash параметров
+      if (!initData && typeof window !== 'undefined' && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const hashInitData = hashParams.get('tgWebAppData') || hashParams.get('initData');
+        if (hashInitData) {
+          initData = hashInitData;
+          console.log('Found initData in hash:', initData);
         }
       }
 

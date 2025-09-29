@@ -136,8 +136,8 @@ export default function CreateProjectPage() {
           <FaArrowLeft className="text-xl" />
         </motion.button>
         <div>
-          <h1 className="text-2xl font-bold text-white">Создать проект</h1>
-          <p className="text-white/70 mt-1">Заполните информацию о новом проекте</p>
+          <h1 className="text-2xl font-bold text-gray-800">Создать проект</h1>
+          <p className="text-gray-600 mt-1">Заполните информацию о новом проекте</p>
         </div>
       </motion.div>
 

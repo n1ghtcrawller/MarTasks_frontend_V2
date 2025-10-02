@@ -67,6 +67,24 @@ export default function ProjectDetailPage() {
       throw error;
     }
   };
+  const generateInviteLink = () => {
+    const inviteLink = 'https://t.me/share/url?url=https://t.me/MarTasksBot&text=Приглащаю тебя на проект! 🚀';
+
+    // Открываем ссылку в новой вкладке
+    window.open(inviteLink);
+
+    // Обновляем сообщения для пользователя
+    setLoading(false);
+    setSuccessMessage('Ссылка для приглашения скопирована и готова для отправки!');
+};
+
+const handleInviteClick = () => {
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+    generateInviteLink();
+};
+
 
   const handleShowCreateTaskForm = withVibration(() => setShowCreateTaskForm(true), VIBRATION_PATTERNS.BUTTON_TAP);
   const handleCloseCreateTaskForm = withVibration(() => setShowCreateTaskForm(false), VIBRATION_PATTERNS.BUTTON_TAP);
@@ -435,7 +453,7 @@ export default function ProjectDetailPage() {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-white">Команда проекта</h2>
-              <button className="bg-white text-[#7370fd] px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2">
+              <button className="bg-white text-[#7370fd] px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2" onClick={handleInviteClick}>
                 <FaPlus className="text-sm" />
                 <span>Добавить участника</span>
               </button>

@@ -70,7 +70,7 @@ export default function ProjectDetailPage() {
     }
   };
   const generateInviteLink = () => {
-    const inviteLink = 'https://t.me/share/url?url=https://t.me/MarTasksBot&text=Приглащаю тебя на проект! 🚀';
+    const inviteLink = 'https://t.me/share/url?url=https://t.me/MarTasksBot&text=Приглащаю тебя принять участие в проекте ${project?.name}!';
 
     // Открываем ссылку в новой вкладке
     window.open(inviteLink);

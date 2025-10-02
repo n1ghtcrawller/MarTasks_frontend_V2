@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FaUser, 
@@ -15,21 +15,23 @@ import {
   FaCog,
   FaSignOutAlt
 } from 'react-icons/fa';
+import { useApp } from '../../contexts/AppContext';
+import { withVibration, VIBRATION_PATTERNS } from '../../utils/vibration';
 
 export default function ProfilePage() {
+  const { user: currentUser, loading, error, updateUserProfile, logout, clearError } = useApp();
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState({
-    name: '',
+  const [editForm, setEditForm] = useState({
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     position: '',
     company: '',
     location: '',
-    joinDate: '',
-    avatar: null
+    teamJoinDate: ''
   });
-
-  const [editForm, setEditForm] = useState(user);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const stats = [
     {
@@ -54,19 +56,77 @@ export default function ProfilePage() {
 
   const recentProjects = [];
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditForm(user);
+  // Инициализация формы при загрузке пользователя
+  useEffect(() => {
+    if (currentUser) {
+      setEditForm({
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        position: currentUser.position || '',
+        company: currentUser.company || '',
+        location: currentUser.location || '',
+        teamJoinDate: currentUser.teamJoinDate || ''
+      });
+    }
+  }, [currentUser]);
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!editForm.firstName.trim()) {
+      errors.firstName = 'Имя обязательно';
+    }
+    
+    if (editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email)) {
+      errors.email = 'Некорректный email';
+    }
+    
+    if (editForm.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(editForm.phone.replace(/\s/g, ''))) {
+      errors.phone = 'Некорректный номер телефона';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleSave = () => {
-    setUser(editForm);
-    setIsEditing(false);
+  const handleEdit = () => {
+    setIsEditing(true);
+    setValidationErrors({});
+    clearError();
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      await updateUserProfile(editForm);
+      setIsEditing(false);
+      setValidationErrors({});
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+    }
   };
 
   const handleCancel = () => {
-    setEditForm(user);
+    if (currentUser) {
+      setEditForm({
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        position: currentUser.position || '',
+        company: currentUser.company || '',
+        location: currentUser.location || '',
+        teamJoinDate: currentUser.teamJoinDate || ''
+      });
+    }
     setIsEditing(false);
+    setValidationErrors({});
+    clearError();
   };
 
   const handleInputChange = (field, value) => {
@@ -74,7 +134,24 @@ export default function ProfilePage() {
       ...prev,
       [field]: value
     }));
+    
+    // Очищаем ошибку валидации при изменении поля
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [field]: null
+      }));
+    }
   };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const handleEditWithVibration = withVibration(handleEdit, VIBRATION_PATTERNS.BUTTON_TAP);
+  const handleSaveWithVibration = withVibration(handleSave, VIBRATION_PATTERNS.SUCCESS);
+  const handleCancelWithVibration = withVibration(handleCancel, VIBRATION_PATTERNS.BUTTON_TAP);
+  const handleLogoutWithVibration = withVibration(handleLogout, VIBRATION_PATTERNS.BUTTON_TAP);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -105,7 +182,7 @@ export default function ProfilePage() {
         <motion.button 
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handleEdit}
+          onClick={handleEditWithVibration}
           className="bg-white text-[#7370fd] p-3 rounded-xl shadow-md hover:bg-gray-50 transition-colors"
         >
           <FaEdit className="text-xl" />
@@ -123,9 +200,9 @@ export default function ProfilePage() {
           {/* Аватар */}
           <div className="relative">
             <div className="w-20 h-20 bg-[#7370fd] rounded-full flex items-center justify-center">
-              {user.avatar ? (
+              {currentUser?.avatar ? (
                 <img 
-                  src={user.avatar} 
+                  src={currentUser.avatar} 
                   alt="Avatar" 
                   className="w-20 h-20 rounded-full object-cover"
                 />
@@ -143,12 +220,28 @@ export default function ProfilePage() {
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Имя *</label>
                   <input
                     type="text"
-                    value={editForm.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    value={editForm.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                      validationErrors.firstName ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    disabled={loading}
+                  />
+                  {validationErrors.firstName && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
+                  <input
+                    type="text"
+                    value={editForm.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
                     className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    disabled={loading}
                   />
                 </div>
                 <div>
@@ -175,8 +268,14 @@ export default function ProfilePage() {
                     type="email"
                     value={editForm.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                      validationErrors.email ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    disabled={loading}
                   />
+                  {validationErrors.email && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
@@ -184,8 +283,14 @@ export default function ProfilePage() {
                     type="tel"
                     value={editForm.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                      validationErrors.phone ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    disabled={loading}
                   />
+                  {validationErrors.phone && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.phone}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Местоположение</label>
@@ -194,37 +299,45 @@ export default function ProfilePage() {
                     value={editForm.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
                     className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    disabled={loading}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Дата вступления в команду</label>
                   <input
                     type="date"
-                    value={editForm.joinDate}
-                    onChange={(e) => handleInputChange('joinDate', e.target.value)}
+                    value={editForm.teamJoinDate}
+                    onChange={(e) => handleInputChange('teamJoinDate', e.target.value)}
                     className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    disabled={loading}
                   />
                 </div>
                 <div className="flex space-x-3">
-                  <button
-                    onClick={handleSave}
-                    className="bg-[#7370fd] text-white px-4 py-2 rounded-lg hover:bg-[#7370fd]/90 transition-colors"
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSaveWithVibration}
+                    disabled={loading}
+                    className="bg-[#7370fd] text-white px-4 py-2 rounded-lg hover:bg-[#7370fd]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Сохранить
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                    {loading ? 'Сохранение...' : 'Сохранить'}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleCancelWithVibration}
+                    disabled={loading}
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                   >
                     Отмена
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             ) : (
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">{user.name || 'Имя не указано'}</h2>
-                <p className="text-[#7370fd] font-medium">{user.position || 'Должность не указана'}</p>
-                <p className="text-gray-600">{user.company || 'Компания не указана'}</p>
+                <h2 className="text-2xl font-bold text-gray-800">{currentUser?.fullName || 'Имя не указано'}</h2>
+                <p className="text-[#7370fd] font-medium">{currentUser?.position || 'Должность не указана'}</p>
+                <p className="text-gray-600">{currentUser?.company || 'Компания не указана'}</p>
               </div>
             )}
           </div>
@@ -235,25 +348,36 @@ export default function ProfilePage() {
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center space-x-3">
               <FaEnvelope className="text-gray-400" />
-              <span className="text-gray-600">{user.email || 'Email не указан'}</span>
+              <span className="text-gray-600">{currentUser?.email || 'Email не указан'}</span>
             </div>
             <div className="flex items-center space-x-3">
               <FaPhone className="text-gray-400" />
-              <span className="text-gray-600">{user.phone || 'Телефон не указан'}</span>
+              <span className="text-gray-600">{currentUser?.phone || 'Телефон не указан'}</span>
             </div>
             <div className="flex items-center space-x-3">
               <FaMapMarkerAlt className="text-gray-400" />
-              <span className="text-gray-600">{user.location || 'Местоположение не указано'}</span>
+              <span className="text-gray-600">{currentUser?.location || 'Местоположение не указано'}</span>
             </div>
             <div className="flex items-center space-x-3">
               <FaCalendarAlt className="text-gray-400" />
               <span className="text-gray-600">
-                {user.joinDate ? `В команде с ${new Date(user.joinDate).toLocaleDateString('ru-RU')}` : 'Дата вступления не указана'}
+                {currentUser?.teamJoinDate ? `В команде с ${new Date(currentUser.teamJoinDate).toLocaleDateString('ru-RU')}` : 'Дата вступления не указана'}
               </span>
             </div>
           </div>
         )}
       </motion.div>
+
+      {/* Ошибка */}
+      {error && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+        >
+          {error}
+        </motion.div>
+      )}
 
       {/* Статистика */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -332,6 +456,7 @@ export default function ProfilePage() {
         <motion.button 
           whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
+          onClick={handleLogoutWithVibration}
           className="w-full bg-red-50 text-red-600 p-4 rounded-xl shadow-md hover:bg-red-100 transition-colors flex items-center justify-center space-x-3"
         >
           <FaSignOutAlt />

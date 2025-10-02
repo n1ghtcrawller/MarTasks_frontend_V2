@@ -169,7 +169,7 @@ export default function TasksPage() {
                 flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors
                 ${filter === filterOption.key
                   ? 'bg-white text-[#7370fd] shadow-md'
-                  : 'bg-white/20 text-white hover:bg-white/30'
+                  : 'bg-white/20 text-[#7370fd] hover:bg-white/30'
                 }
               `}
             >
@@ -178,7 +178,7 @@ export default function TasksPage() {
                 px-2 py-1 rounded-full text-xs
                 ${filter === filterOption.key
                   ? 'bg-[#7370fd]/20 text-[#7370fd]'
-                  : 'bg-white/20 text-white'
+                  : 'bg-white/20 text-[#7370fd]'
                 }
               `}>
                 {filterOption.count}

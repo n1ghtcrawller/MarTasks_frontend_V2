@@ -33,6 +33,12 @@ export class User {
     this.username = data.username;
     this.firstName = data.first_name;
     this.lastName = data.last_name;
+    this.position = data.position;
+    this.company = data.company;
+    this.email = data.email;
+    this.location = data.location;
+    this.phone = data.phone;
+    this.teamJoinDate = data.team_join_date;
     this.verifiedStatus = data.verified_status;
     this.createdAt = data.created_at;
     this.updatedAt = data.updated_at;
@@ -44,6 +50,20 @@ export class User {
 
   get displayName() {
     return this.firstName || this.username || 'Пользователь';
+  }
+
+  // Метод для получения данных для обновления профиля
+  getUpdateData() {
+    return {
+      first_name: this.firstName,
+      last_name: this.lastName,
+      position: this.position,
+      company: this.company,
+      email: this.email,
+      location: this.location,
+      phone: this.phone,
+      team_join_date: this.teamJoinDate
+    };
   }
 }
 

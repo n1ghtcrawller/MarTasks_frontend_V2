@@ -351,21 +351,21 @@ export default function ProjectDetailPage() {
             <FaCalendarAlt className="text-[#7370fd]" />
             <div>
               <p className="text-sm text-gray-600">Создан</p>
-              <p className="font-semibold">{project?.createdAt ? new Date(project.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно'}</p>
+              <p className="font-semibold text-[#7370fd]">{project?.createdAt ? new Date(project.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно'}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <FaChartBar className="text-[#7370fd]" />
             <div>
               <p className="text-sm text-gray-600">Прогресс</p>
-              <p className="font-semibold">{project?.progress || 0}%</p>
+              <p className="font-semibold text-[#7370fd]">{project?.progress || 0}%</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <FaUsers className="text-[#7370fd]" />
             <div>
               <p className="text-sm text-gray-600">Команда</p>
-              <p className="font-semibold">{members.length} участников</p>
+              <p className="font-semibold text-[#7370fd]">{members.length} участников</p>
             </div>
           </div>
         </div>
@@ -391,7 +391,7 @@ export default function ProjectDetailPage() {
               flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors
               ${activeTab === tab.id
                 ? 'bg-white text-[#7370fd] shadow-md'
-                : 'bg-white/20 text-white hover:bg-white/30'
+                : 'bg-white/20 text-[#7370fd] hover:bg-white/30'
               }
             `}
           >
@@ -401,7 +401,7 @@ export default function ProjectDetailPage() {
                 px-2 py-1 rounded-full text-xs
                 ${activeTab === tab.id
                   ? 'bg-[#7370fd]/20 text-[#7370fd]'
-                  : 'bg-white/20 text-white'
+                  : 'bg-white/20 text-[#7370fd]'
                 }
               `}>
                 {tab.count}

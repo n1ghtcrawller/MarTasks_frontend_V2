@@ -337,6 +337,20 @@ export function AppProvider({ children }) {
     }
   };
 
+  // Обновление профиля пользователя
+  const updateUserProfile = async (userData) => {
+    try {
+      dispatch({ type: ActionTypes.SET_LOADING, payload: true });
+      const response = await authAPI.updateProfile(userData);
+      const updatedUser = new User(response);
+      dispatch({ type: ActionTypes.SET_USER, payload: updatedUser });
+      return updatedUser;
+    } catch (error) {
+      dispatch({ type: ActionTypes.SET_ERROR, payload: error.message });
+      throw error;
+    }
+  };
+
   // Выход из системы
   const logout = () => {
     localStorage.removeItem('auth_token');
@@ -366,6 +380,7 @@ export function AppProvider({ children }) {
     deleteTask,
     updateTaskStatus,
     updateTaskPriority,
+    updateUserProfile,
     logout,
     clearError,
     checkAuth,

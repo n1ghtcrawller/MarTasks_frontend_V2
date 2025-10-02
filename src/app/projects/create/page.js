@@ -165,7 +165,7 @@ export default function CreateProjectPage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                className={`w-full p-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                   errors.name ? 'border-red-300' : 'border-gray-200'
                 }`}
                 placeholder="Введите название проекта"
@@ -181,7 +181,7 @@ export default function CreateProjectPage() {
               <textarea
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 placeholder="Опишите цели и задачи проекта"
                 rows="4"
               />
@@ -196,7 +196,7 @@ export default function CreateProjectPage() {
                 <select
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                  className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 >
                   <option value="">Выберите категорию</option>
                   {categories.map(category => (
@@ -214,7 +214,7 @@ export default function CreateProjectPage() {
                 <select
                   value={formData.priority}
                   onChange={(e) => handleInputChange('priority', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                  className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 >
                   {priorities.map(priority => (
                     <option key={priority.value} value={priority.value}>
@@ -242,7 +242,7 @@ export default function CreateProjectPage() {
                   type="date"
                   value={formData.startDate}
                   onChange={(e) => handleInputChange('startDate', e.target.value)}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                  className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 />
               </div>
 
@@ -254,7 +254,7 @@ export default function CreateProjectPage() {
                   type="date"
                   value={formData.endDate}
                   onChange={(e) => handleInputChange('endDate', e.target.value)}
-                  className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                  className={`w-full p-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                     errors.endDate ? 'border-red-300' : 'border-gray-200'
                   }`}
                 />
@@ -280,7 +280,7 @@ export default function CreateProjectPage() {
                 max="100"
                 value={formData.teamSize}
                 onChange={(e) => handleInputChange('teamSize', parseInt(e.target.value) || 1)}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
               />
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function CreateProjectPage() {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTagWithVibration())}
-                className="flex-1 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                className="flex-1 p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 placeholder="Добавить тег"
               />
               <motion.button

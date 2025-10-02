@@ -11,13 +11,16 @@ import {
   FaSearch
 } from 'react-icons/fa';
 import { useApp } from '../../contexts/AppContext.js';
+import CreateTaskForm from '../../components/CreateTaskForm';
 import { withVibration, VIBRATION_PATTERNS } from '../../utils/vibration';
 
 export default function TasksPage() {
-  const { tasks, loading, error, loadTasks, updateTaskStatus } = useApp();
+  const { tasks, loading, error, loadTasks, updateTaskStatus, createTask, projects } = useApp();
   
   const [filter, setFilter] = useState('all'); // all, pending, completed, overdue
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateTaskForm, setShowCreateTaskForm] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
 
   useEffect(() => {
     loadTasks();
@@ -34,6 +37,33 @@ export default function TasksPage() {
 
   const handleTaskToggleWithVibration = withVibration(handleTaskToggle, VIBRATION_PATTERNS.TOGGLE);
   const handleFilterChange = withVibration((filterKey) => setFilter(filterKey), VIBRATION_PATTERNS.BUTTON_TAP);
+
+  const handleCreateTask = async (projectId, taskData) => {
+    try {
+      await createTask(projectId, taskData);
+      // Обновляем список задач
+      await loadTasks();
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      throw error;
+    }
+  };
+
+  const handleShowCreateTaskForm = withVibration(() => {
+    if (projects.length === 0) {
+      alert('У вас нет проектов. Сначала создайте проект.');
+      return;
+    }
+    if (projects.length === 1) {
+      setSelectedProjectId(projects[0].id);
+    }
+    setShowCreateTaskForm(true);
+  }, VIBRATION_PATTERNS.BUTTON_TAP);
+
+  const handleCloseCreateTaskForm = withVibration(() => {
+    setShowCreateTaskForm(false);
+    setSelectedProjectId(null);
+  }, VIBRATION_PATTERNS.BUTTON_TAP);
 
   const filteredTasks = tasks.filter(task => {
     // Фильтр по статусу
@@ -93,6 +123,7 @@ export default function TasksPage() {
         <motion.button 
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handleShowCreateTaskForm}
           className="bg-white text-[#7370fd] p-3 rounded-xl shadow-md hover:bg-gray-50 transition-colors"
         >
           <FaPlus className="text-xl" />
@@ -240,9 +271,14 @@ export default function TasksPage() {
             }
           </p>
           {!searchQuery && (
-            <button className="bg-white text-[#7370fd] px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleShowCreateTaskForm}
+              className="bg-white text-[#7370fd] px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+            >
               Создать задачу
-            </button>
+            </motion.button>
           )}
         </motion.div>
       )}
@@ -264,6 +300,78 @@ export default function TasksPage() {
         >
           {error}
         </motion.div>
+      )}
+
+      {/* Форма создания задачи */}
+      {showCreateTaskForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            {/* Заголовок */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-800">Создать задачу</h2>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleCloseCreateTaskForm}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FaPlus className="text-xl rotate-45" />
+              </motion.button>
+            </div>
+
+            {/* Выбор проекта */}
+            {projects.length > 1 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Выберите проект
+                </label>
+                <select
+                  value={selectedProjectId || ''}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                >
+                  <option value="">Выберите проект</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Форма создания задачи */}
+            {selectedProjectId && (
+              <CreateTaskForm
+                isOpen={true}
+                onClose={handleCloseCreateTaskForm}
+                onSubmit={handleCreateTask}
+                projectId={selectedProjectId}
+                loading={loading}
+                embedded={true}
+              />
+            )}
+
+            {/* Кнопка отмены если проект не выбран */}
+            {projects.length > 1 && !selectedProjectId && (
+              <div className="flex justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleCloseCreateTaskForm}
+                  className="px-6 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Отмена
+                </motion.button>
+              </div>
+            )}
+          </motion.div>
+        </div>
       )}
     </div>
   );

@@ -18,10 +18,11 @@ export const TaskStatus = {
 
 // Приоритеты задач
 export const TaskPriority = {
+  VERY_LOW: 'very_low',
   LOW: 'low',
   MEDIUM: 'medium',
   HIGH: 'high',
-  URGENT: 'urgent'
+  BLOCKER: 'blocker'
 };
 
 // Пользователь
@@ -115,20 +116,22 @@ export class Task {
 
   get priorityText() {
     const priorityMap = {
+      [TaskPriority.VERY_LOW]: 'Очень низкий',
       [TaskPriority.LOW]: 'Низкий',
       [TaskPriority.MEDIUM]: 'Средний',
       [TaskPriority.HIGH]: 'Высокий',
-      [TaskPriority.URGENT]: 'Срочный'
+      [TaskPriority.BLOCKER]: 'Блокер'
     };
     return priorityMap[this.priority] || this.priority;
   }
 
   get priorityColor() {
     const colorMap = {
+      [TaskPriority.VERY_LOW]: 'text-gray-500',
       [TaskPriority.LOW]: 'text-green-500',
       [TaskPriority.MEDIUM]: 'text-yellow-500',
       [TaskPriority.HIGH]: 'text-orange-500',
-      [TaskPriority.URGENT]: 'text-red-500'
+      [TaskPriority.BLOCKER]: 'text-red-500'
     };
     return colorMap[this.priority] || 'text-gray-500';
   }
@@ -210,10 +213,11 @@ export const dataUtils = {
   // Получить цвет приоритета
   getPriorityColor: (priority) => {
     const colorMap = {
+      [TaskPriority.VERY_LOW]: 'bg-gray-100 text-gray-600',
       [TaskPriority.LOW]: 'bg-green-100 text-green-600',
       [TaskPriority.MEDIUM]: 'bg-yellow-100 text-yellow-600',
       [TaskPriority.HIGH]: 'bg-orange-100 text-orange-600',
-      [TaskPriority.URGENT]: 'bg-red-100 text-red-600'
+      [TaskPriority.BLOCKER]: 'bg-red-100 text-red-600'
     };
     return colorMap[priority] || 'bg-gray-100 text-gray-600';
   },

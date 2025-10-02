@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useApp } from '../../contexts/AppContext';
+import CreateTaskForm from '../../components/CreateTaskForm';
+import { withVibration, VIBRATION_PATTERNS } from '../../utils/vibration';
 import { 
   FaArrowLeft, 
   FaPlus, 
@@ -25,11 +27,12 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState('tasks');
 
   // Получаем данные проекта из контекста
-  const { currentProject, loadProject, loadProjectTasks, loadProjectMembers } = useApp();
+  const { currentProject, loadProject, loadProjectTasks, loadProjectMembers, createTask } = useApp();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateTaskForm, setShowCreateTaskForm] = useState(false);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -52,6 +55,21 @@ export default function ProjectDetailPage() {
 
     fetchProjectData();
   }, [params.id]);
+
+  const handleCreateTask = async (projectId, taskData) => {
+    try {
+      const newTask = await createTask(projectId, taskData);
+      // Обновляем список задач
+      const updatedTasks = await loadProjectTasks(projectId);
+      setTasks(updatedTasks);
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      throw error;
+    }
+  };
+
+  const handleShowCreateTaskForm = withVibration(() => setShowCreateTaskForm(true), VIBRATION_PATTERNS.BUTTON_TAP);
+  const handleCloseCreateTaskForm = withVibration(() => setShowCreateTaskForm(false), VIBRATION_PATTERNS.BUTTON_TAP);
 
   const tabs = [
     { id: 'tasks', label: 'Задачи', count: tasks.length },
@@ -399,10 +417,15 @@ export default function ProjectDetailPage() {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-white">Задачи проекта</h2>
-              <button className="bg-white text-[#7370fd] px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleShowCreateTaskForm}
+                className="bg-white text-[#7370fd] px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
+              >
                 <FaPlus className="text-sm" />
                 <span>Добавить задачу</span>
-              </button>
+              </motion.button>
             </div>
             {renderTasks()}
           </div>
@@ -435,6 +458,15 @@ export default function ProjectDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Форма создания задачи */}
+      <CreateTaskForm
+        isOpen={showCreateTaskForm}
+        onClose={handleCloseCreateTaskForm}
+        onSubmit={handleCreateTask}
+        projectId={params.id}
+        loading={loading}
+      />
     </div>
   );
 }

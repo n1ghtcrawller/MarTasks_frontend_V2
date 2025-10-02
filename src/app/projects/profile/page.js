@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fa';
 import { useApp } from '../../contexts/AppContext';
 import { withVibration, VIBRATION_PATTERNS } from '../../utils/vibration';
+import { hapticSuccess, hapticError } from '../../utils/hapticFeedback';
 
 export default function ProfilePage() {
   const { user: currentUser, loading, error, updateUserProfile, logout, clearError } = useApp();
@@ -32,6 +33,7 @@ export default function ProfilePage() {
     teamJoinDate: ''
   });
   const [validationErrors, setValidationErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
 
   const stats = [
     {
@@ -67,7 +69,7 @@ export default function ProfilePage() {
         position: currentUser.position || '',
         company: currentUser.company || '',
         location: currentUser.location || '',
-        teamJoinDate: currentUser.teamJoinDate || ''
+        teamJoinDate: currentUser.teamJoinDate ? currentUser.teamJoinDate.split('T')[0] : ''
       });
     }
   }, [currentUser]);
@@ -94,6 +96,7 @@ export default function ProfilePage() {
   const handleEdit = () => {
     setIsEditing(true);
     setValidationErrors({});
+    setSuccessMessage('');
     clearError();
   };
 
@@ -103,11 +106,33 @@ export default function ProfilePage() {
     }
 
     try {
-      await updateUserProfile(editForm);
+      // Преобразуем данные формы в формат API
+      const profileData = {
+        first_name: editForm.firstName,
+        last_name: editForm.lastName,
+        email: editForm.email || null,
+        phone: editForm.phone || null,
+        position: editForm.position || null,
+        company: editForm.company || null,
+        location: editForm.location || null,
+        team_join_date: editForm.teamJoinDate || null
+      };
+
+      await updateUserProfile(profileData);
       setIsEditing(false);
       setValidationErrors({});
+      setSuccessMessage('Профиль успешно обновлен!');
+      
+      // Успешное сохранение - тактильная обратная связь
+      hapticSuccess();
+      
+      // Убираем сообщение через 3 секунды
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to update profile:', error);
+      
+      // Ошибка сохранения - тактильная обратная связь
+      hapticError();
     }
   };
 
@@ -121,11 +146,12 @@ export default function ProfilePage() {
         position: currentUser.position || '',
         company: currentUser.company || '',
         location: currentUser.location || '',
-        teamJoinDate: currentUser.teamJoinDate || ''
+        teamJoinDate: currentUser.teamJoinDate ? currentUser.teamJoinDate.split('T')[0] : ''
       });
     }
     setIsEditing(false);
     setValidationErrors({});
+    setSuccessMessage('');
     clearError();
   };
 
@@ -225,7 +251,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editForm.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                    className={`w-full p-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                       validationErrors.firstName ? 'border-red-300' : 'border-gray-200'
                     }`}
                     disabled={loading}
@@ -240,7 +266,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editForm.lastName}
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                     disabled={loading}
                   />
                 </div>
@@ -250,7 +276,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editForm.position}
                     onChange={(e) => handleInputChange('position', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                   />
                 </div>
                 <div>
@@ -259,7 +285,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editForm.company}
                     onChange={(e) => handleInputChange('company', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                   />
                 </div>
                 <div>
@@ -268,7 +294,7 @@ export default function ProfilePage() {
                     type="email"
                     value={editForm.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                    className={`w-full p-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                       validationErrors.email ? 'border-red-300' : 'border-gray-200'
                     }`}
                     disabled={loading}
@@ -283,7 +309,7 @@ export default function ProfilePage() {
                     type="tel"
                     value={editForm.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                    className={`w-full p-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                       validationErrors.phone ? 'border-red-300' : 'border-gray-200'
                     }`}
                     disabled={loading}
@@ -298,7 +324,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editForm.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                     disabled={loading}
                   />
                 </div>
@@ -308,7 +334,7 @@ export default function ProfilePage() {
                     type="date"
                     value={editForm.teamJoinDate}
                     onChange={(e) => handleInputChange('teamJoinDate', e.target.value)}
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                    className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                     disabled={loading}
                   />
                 </div>
@@ -368,7 +394,7 @@ export default function ProfilePage() {
         )}
       </motion.div>
 
-      {/* Ошибка */}
+      {/* Сообщения */}
       {error && (
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -376,6 +402,17 @@ export default function ProfilePage() {
           className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
         >
           {error}
+        </motion.div>
+      )}
+      
+      {successMessage && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6"
+        >
+          {successMessage}
         </motion.div>
       )}
 

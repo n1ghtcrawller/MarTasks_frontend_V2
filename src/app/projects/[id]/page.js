@@ -295,7 +295,7 @@ export default function ProjectDetailPage() {
           <div className="flex-1">
             <textarea
               placeholder="Добавить комментарий..."
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 resize-none"
+              className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 resize-none"
               rows="3"
             />
             <div className="flex justify-end mt-2">

@@ -75,7 +75,7 @@ export default function ProjectsPage() {
                 type="text"
                 value={newProject.name}
                 onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 placeholder="Введите название проекта"
                 required
               />
@@ -85,7 +85,7 @@ export default function ProjectsPage() {
               <textarea
                 value={newProject.description}
                 onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+                className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
                 placeholder="Описание проекта (необязательно)"
                 rows="3"
               />

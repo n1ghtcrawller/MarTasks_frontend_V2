@@ -88,8 +88,8 @@ export default function CreateTaskForm({
     onClose();
   };
 
-  const handleSubmitWithVibration = withVibration(handleSubmit, VIBRATION_PATTERNS.SUCCESS);
-  const handleCloseWithVibration = withVibration(handleClose, VIBRATION_PATTERNS.BUTTON_TAP);
+  const handleSubmitWithVibration = withVibration(handleSubmit, VIBRATION_PATTERNS.SUCCESS, 'success');
+  const handleCloseWithVibration = withVibration(handleClose, VIBRATION_PATTERNS.BUTTON_TAP, 'light');
 
   const priorityOptions = [
     { value: TaskPriority.VERY_LOW, label: 'Очень низкий', color: 'text-gray-500' },
@@ -170,7 +170,7 @@ export default function CreateTaskForm({
                   type="button"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => handleInputChange('priority', option.value)}
+                  onClick={withVibration(() => handleInputChange('priority', option.value), VIBRATION_PATTERNS.BUTTON_TAP, 'selection')}
                   className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
                     formData.priority === option.value
                       ? 'border-[#7370fd] bg-[#7370fd]/10 text-[#7370fd]'

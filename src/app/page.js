@@ -21,13 +21,6 @@ export default function Home() {
       if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp;
         
-        // Запрашиваем полноэкранный режим
-        try {
-          tg.requestFullscreen();
-        } catch (error) {
-          console.warn('Failed to request fullscreen:', error);
-        }
-        
         // Ждем, пока initData станет доступным
         if (tg.initData || tg.initDataUnsafe) {
           console.log('Telegram WebApp ready with data:', {

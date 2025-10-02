@@ -215,7 +215,7 @@ export default function SettingsPage() {
             <select
               value={item.value}
               onChange={(e) => item.onChange(e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+              className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
             >
               {item.options.map((option) => (
                 <option key={option.value} value={option.value}>

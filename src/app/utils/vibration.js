@@ -2,7 +2,15 @@
  * Утилита для вибрации в Telegram Web App
  * Поддерживает различные типы вибрации для разных действий
  * Учитывает ограничения iOS и использует Telegram Web App API
+ * Интегрируется с HapticFeedback для улучшенной тактильной обратной связи
  */
+
+import { 
+  impactOccurred, 
+  notificationOccurred, 
+  selectionChanged, 
+  getSupportInfo as getHapticSupportInfo 
+} from './hapticFeedback.js';
 
 // Проверяем доступность вибрации
 const isVibrationSupported = () => {
@@ -52,10 +60,38 @@ export const VIBRATION_PATTERNS = {
 
 /**
  * Выполняет вибрацию с указанным паттерном
+ * Автоматически использует HapticFeedback если доступен, иначе стандартную вибрацию
  * @param {number[]} pattern - Паттерн вибрации в миллисекундах
  * @param {boolean} force - Принудительно выполнить вибрацию
+ * @param {string} hapticType - Тип HapticFeedback ('light', 'medium', 'heavy', 'success', 'error', 'warning', 'selection')
  */
-export const vibrate = (pattern = VIBRATION_PATTERNS.BUTTON_TAP, force = false) => {
+export const vibrate = (pattern = VIBRATION_PATTERNS.BUTTON_TAP, force = false, hapticType = null) => {
+  // Сначала пытаемся использовать HapticFeedback
+  if (hapticType && typeof window !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) {
+    try {
+      switch (hapticType) {
+        case 'light':
+        case 'medium':
+        case 'heavy':
+        case 'rigid':
+        case 'soft':
+          impactOccurred(hapticType);
+          return; // Успешно использовали HapticFeedback
+        case 'success':
+        case 'error':
+        case 'warning':
+          notificationOccurred(hapticType);
+          return; // Успешно использовали HapticFeedback
+        case 'selection':
+          selectionChanged();
+          return; // Успешно использовали HapticFeedback
+      }
+    } catch (error) {
+      console.warn('HapticFeedback failed, falling back to vibration:', error);
+    }
+  }
+
+  // Fallback к стандартной вибрации
   if (!isVibrationSupported() && !force) {
     console.log('Vibration not supported on this device');
     return;
@@ -93,10 +129,11 @@ export const vibrate = (pattern = VIBRATION_PATTERNS.BUTTON_TAP, force = false) 
  * Вибрация для кнопок с анимацией
  * @param {Function} onClick - Оригинальная функция onClick
  * @param {number[]} pattern - Паттерн вибрации
+ * @param {string} hapticType - Тип HapticFeedback
  */
-export const withVibration = (onClick, pattern = VIBRATION_PATTERNS.BUTTON_TAP) => {
+export const withVibration = (onClick, pattern = VIBRATION_PATTERNS.BUTTON_TAP, hapticType = 'light') => {
   return (event) => {
-    vibrate(pattern);
+    vibrate(pattern, false, hapticType);
     if (onClick) {
       onClick(event);
     }
@@ -107,65 +144,67 @@ export const withVibration = (onClick, pattern = VIBRATION_PATTERNS.BUTTON_TAP) 
  * Вибрация для успешных действий
  */
 export const vibrateSuccess = () => {
-  vibrate(VIBRATION_PATTERNS.SUCCESS);
+  vibrate(VIBRATION_PATTERNS.SUCCESS, false, 'success');
 };
 
 /**
  * Вибрация для ошибок
  */
 export const vibrateError = () => {
-  vibrate(VIBRATION_PATTERNS.ERROR);
+  vibrate(VIBRATION_PATTERNS.ERROR, false, 'error');
 };
 
 /**
  * Вибрация для переключения состояний
  */
 export const vibrateToggle = () => {
-  vibrate(VIBRATION_PATTERNS.TOGGLE);
+  vibrate(VIBRATION_PATTERNS.TOGGLE, false, 'selection');
 };
 
 /**
  * Вибрация для навигации
  */
 export const vibrateNavigation = () => {
-  vibrate(VIBRATION_PATTERNS.NAVIGATION);
+  vibrate(VIBRATION_PATTERNS.NAVIGATION, false, 'medium');
 };
 
 /**
  * Вибрация для подтверждения
  */
 export const vibrateConfirm = () => {
-  vibrate(VIBRATION_PATTERNS.CONFIRM);
+  vibrate(VIBRATION_PATTERNS.CONFIRM, false, 'heavy');
 };
 
 /**
  * Легкая вибрация (для iOS, если поддерживается)
  */
 export const vibrateLight = () => {
-  vibrate(VIBRATION_PATTERNS.LIGHT);
+  vibrate(VIBRATION_PATTERNS.LIGHT, false, 'light');
 };
 
 /**
  * Средняя вибрация
  */
 export const vibrateMedium = () => {
-  vibrate(VIBRATION_PATTERNS.MEDIUM);
+  vibrate(VIBRATION_PATTERNS.MEDIUM, false, 'medium');
 };
 
 /**
  * Тяжелая вибрация
  */
 export const vibrateHeavy = () => {
-  vibrate(VIBRATION_PATTERNS.HEAVY);
+  vibrate(VIBRATION_PATTERNS.HEAVY, false, 'heavy');
 };
 
 /**
  * Проверяет, поддерживается ли вибрация на текущем устройстве
  */
 export const checkVibrationSupport = () => {
+  const hapticSupport = getHapticSupportInfo();
   const support = {
     standardAPI: 'vibrate' in navigator,
     telegramWebApp: typeof window !== 'undefined' && !!window.Telegram?.WebApp,
+    hapticFeedback: hapticSupport,
     isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
     isAndroid: /Android/.test(navigator.userAgent),
     isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)

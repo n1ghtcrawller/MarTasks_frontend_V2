@@ -28,6 +28,8 @@ export default function ProjectDetailPage() {
 
   // Получаем данные проекта из контекста
   const { currentProject, loadProject, loadProjectTasks, loadProjectMembers, createTask } = useApp();
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);

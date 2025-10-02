@@ -13,12 +13,16 @@ import {
   FaPlus
 } from 'react-icons/fa';
 import { withVibration, VIBRATION_PATTERNS } from '../utils/vibration';
+import { hapticNavigation, withHapticFeedback } from '../utils/hapticFeedback';
 
 export default function ProjectsLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   
-  const handleCreateProject = withVibration(() => router.push('/projects/create'), VIBRATION_PATTERNS.NAVIGATION);
+  const handleCreateProject = withHapticFeedback(
+    withVibration(() => router.push('/projects/create'), VIBRATION_PATTERNS.NAVIGATION),
+    'medium'
+  );
   
   const navigationItems = [
     {
@@ -75,6 +79,7 @@ export default function ProjectsLayout({ children }) {
               >
                 <Link
                   href={item.href}
+                  onClick={withHapticFeedback(() => {}, 'light')}
                   className={`
                     flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200
                     ${item.isActive 

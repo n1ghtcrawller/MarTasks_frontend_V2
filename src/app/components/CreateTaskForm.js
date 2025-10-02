@@ -132,7 +132,7 @@ export default function CreateTaskForm({
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+              className={`w-full p-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                 errors.title ? 'border-red-300' : 'border-gray-200'
               }`}
               placeholder="Введите название задачи"
@@ -151,7 +151,7 @@ export default function CreateTaskForm({
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
+              className="w-full p-3 text-[#7370fd] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20"
               placeholder="Описание задачи (необязательно)"
               rows="3"
               disabled={loading}
@@ -198,7 +198,7 @@ export default function CreateTaskForm({
                 type="datetime-local"
                 value={formData.due_date}
                 onChange={(e) => handleInputChange('due_date', e.target.value)}
-                className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
+                className={`w-full pl-10 pr-3 py-3 text-[#7370fd] border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7370fd]/20 ${
                   errors.due_date ? 'border-red-300' : 'border-gray-200'
                 }`}
                 disabled={loading}

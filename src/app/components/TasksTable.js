@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
   useDroppable,
+  PointerEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -43,9 +44,6 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
     isDragging,
   } = useSortable({ id: task.id });
 
-  const [isLongPressing, setIsLongPressing] = useState(false);
-  const [longPressTimer, setLongPressTimer] = useState(null);
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -56,70 +54,9 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
     msUserSelect: 'none',
   };
 
-  // Cleanup таймера при размонтировании
-  useEffect(() => {
-    return () => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-      }
-    };
-  }, [longPressTimer]);
-
-  const startLongPress = (e) => {
-    // Предотвращаем long press на кнопках
-    if (e.target.closest('button')) return;
-    
-    // Предотвращаем выделение текста
-    e.preventDefault();
-    
-    const timer = setTimeout(() => {
-      setIsLongPressing(true);
-      // Включаем режим перетаскивания
-      if (listeners?.onPointerDown) {
-        listeners.onPointerDown(e);
-      }
-    }, 500); // 500ms для long press
-    
-    setLongPressTimer(timer);
-  };
-
-  const endLongPress = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-    setIsLongPressing(false);
-  };
-
-  const handleMouseDown = (e) => {
-    startLongPress(e);
-  };
-
-  const handleMouseUp = () => {
-    endLongPress();
-  };
-
-  const handleMouseLeave = () => {
-    endLongPress();
-  };
-
-  const handleTouchStart = (e) => {
-    // Предотвращаем выделение текста на мобильных устройствах
-    e.preventDefault();
-    startLongPress(e);
-  };
-
-  const handleTouchEnd = () => {
-    endLongPress();
-  };
-
-  const handleTouchCancel = () => {
-    endLongPress();
-  };
-
   const handleClick = (e) => {
-    // Предотвращаем клик при перетаскивании или long press
-    if (isDragging || isLongPressing) {
+    // Предотвращаем клик при перетаскивании
+    if (isDragging) {
       e.preventDefault();
       return;
     }
@@ -171,17 +108,12 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       className={`bg-white rounded-xl p-4 shadow-md mb-3 transition-all select-none ${
-        isLongPressing 
+        isDragging 
           ? 'cursor-grabbing scale-105 shadow-lg' 
           : 'cursor-pointer hover:shadow-lg'
       }`}
       {...attributes}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
+      {...listeners}
       onClick={handleClick}
     >
       <div className="flex items-start justify-between mb-3">
@@ -339,12 +271,16 @@ export default function TasksTable({
 }) {
   const [activeId, setActiveId] = useState(null);
   
+  // Кастомный сенсор для long press
+  const longPressSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      delay: 500, // 500ms задержка для long press
+      tolerance: 5, // Допустимое движение во время задержки
+    },
+  });
+
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8, // Минимальное расстояние для активации перетаскивания
-      },
-    }),
+    longPressSensor,
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

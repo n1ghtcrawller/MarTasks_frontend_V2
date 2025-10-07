@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   DndContext,
@@ -43,10 +43,82 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
     isDragging,
   } = useSortable({ id: task.id });
 
+  const [isLongPressing, setIsLongPressing] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState(null);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  // Cleanup таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
+
+  const startLongPress = (e) => {
+    // Предотвращаем long press на кнопках
+    if (e.target.closest('button')) return;
+    
+    const timer = setTimeout(() => {
+      setIsLongPressing(true);
+      // Включаем режим перетаскивания
+      if (listeners?.onPointerDown) {
+        listeners.onPointerDown(e);
+      }
+    }, 500); // 500ms для long press
+    
+    setLongPressTimer(timer);
+  };
+
+  const endLongPress = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    setIsLongPressing(false);
+  };
+
+  const handleMouseDown = (e) => {
+    startLongPress(e);
+  };
+
+  const handleMouseUp = () => {
+    endLongPress();
+  };
+
+  const handleMouseLeave = () => {
+    endLongPress();
+  };
+
+  const handleTouchStart = (e) => {
+    startLongPress(e);
+  };
+
+  const handleTouchEnd = () => {
+    endLongPress();
+  };
+
+  const handleTouchCancel = () => {
+    endLongPress();
+  };
+
+  const handleClick = (e) => {
+    // Предотвращаем клик при перетаскивании или long press
+    if (isDragging || isLongPressing) {
+      e.preventDefault();
+      return;
+    }
+    
+    // Предотвращаем открытие модального окна при клике на кнопки
+    if (e.target.closest('button')) return;
+    
+    onView(task.id);
   };
 
   const getPriorityColor = (priority) => {
@@ -89,14 +161,19 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-xl p-4 shadow-md mb-3 cursor-grab active:cursor-grabbing"
+      className={`bg-white rounded-xl p-4 shadow-md mb-3 transition-all ${
+        isLongPressing 
+          ? 'cursor-grabbing scale-105 shadow-lg' 
+          : 'cursor-pointer hover:shadow-lg'
+      }`}
       {...attributes}
-      {...listeners}
-      onClick={(e) => {
-        // Предотвращаем открытие модального окна при клике на кнопки
-        if (e.target.closest('button')) return;
-        onView(task.id);
-      }}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
+      onClick={handleClick}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3 flex-1">
@@ -254,7 +331,11 @@ export default function TasksTable({
   const [activeId, setActiveId] = useState(null);
   
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Минимальное расстояние для активации перетаскивания
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

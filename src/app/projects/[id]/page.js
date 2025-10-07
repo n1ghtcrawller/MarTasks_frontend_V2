@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useApp } from '../../contexts/AppContext';
 import CreateTaskForm from '../../components/CreateTaskForm';
+import TasksTable from '../../components/TasksTable';
 import { withVibration, VIBRATION_PATTERNS } from '../../utils/vibration';
 import { 
   FaArrowLeft, 
@@ -27,7 +28,16 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState('tasks');
 
   // Получаем данные проекта из контекста
-  const { currentProject, loadProject, loadProjectTasks, loadProjectMembers, createTask } = useApp();
+  const { 
+    currentProject, 
+    loadProject, 
+    loadProjectTasks, 
+    loadProjectMembers, 
+    createTask,
+    updateTaskStatus,
+    updateTask,
+    deleteTask: deleteTaskAPI
+  } = useApp();
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [project, setProject] = useState(null);
@@ -69,6 +79,93 @@ export default function ProjectDetailPage() {
       throw error;
     }
   };
+
+  const handleTaskStatusChange = async (taskId, newStatus) => {
+    try {
+      setError(null);
+      setSuccessMessage(null);
+      
+      // Обновляем статус задачи через API
+      await updateTaskStatus(taskId, newStatus);
+      
+      // Обновляем локальное состояние задач
+      const updatedTasks = await loadProjectTasks(params.id);
+      setTasks(updatedTasks);
+      
+      setSuccessMessage(`Статус задачи обновлен на "${getStatusText(newStatus)}"`);
+      
+      // Автоматически скрываем сообщение через 3 секунды
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+      setError(`Ошибка при обновлении статуса: ${error.message}`);
+      
+      // Автоматически скрываем ошибку через 5 секунд
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleTaskEdit = (taskId) => {
+    // TODO: Реализовать редактирование задачи
+    console.log('Edit task:', taskId);
+  };
+
+  const handleTaskDelete = async (taskId) => {
+    try {
+      setError(null);
+      setSuccessMessage(null);
+      
+      // Удаляем задачу через API
+      await deleteTaskAPI(taskId);
+      
+      // Обновляем локальное состояние задач
+      const updatedTasks = await loadProjectTasks(params.id);
+      setTasks(updatedTasks);
+      
+      setSuccessMessage('Задача успешно удалена');
+      
+      // Автоматически скрываем сообщение через 3 секунды
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      setError(`Ошибка при удалении задачи: ${error.message}`);
+      
+      // Автоматически скрываем ошибку через 5 секунд
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleTaskToggleComplete = async (taskId) => {
+    try {
+      setError(null);
+      setSuccessMessage(null);
+      
+      // Находим задачу и определяем новый статус
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      
+      const newStatus = (task.status === 'done' || task.status === 'completed') ? 'todo' : 'done';
+      
+      // Обновляем статус задачи через API
+      await updateTaskStatus(taskId, newStatus);
+      
+      // Обновляем локальное состояние задач
+      const updatedTasks = await loadProjectTasks(params.id);
+      setTasks(updatedTasks);
+      
+      const statusText = newStatus === 'completed' ? 'выполнена' : 'возвращена в работу';
+      setSuccessMessage(`Задача ${statusText}`);
+      
+      // Автоматически скрываем сообщение через 3 секунды
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to toggle task completion:', error);
+      setError(`Ошибка при изменении статуса: ${error.message}`);
+      
+      // Автоматически скрываем ошибку через 5 секунд
+      setTimeout(() => setError(null), 5000);
+    }
+  };
   const generateInviteLink = () => {
     const inviteLink = `https://t.me/share/url?url=https://t.me/MarTasksBot&text=Приглащаю тебя принять участие в проекте ${project?.name}!`;
 
@@ -98,94 +195,18 @@ const handleInviteClick = () => {
     { id: 'comments', label: 'Обсуждения', count: 0 }
   ];
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return 'text-red-500';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-green-500';
-      default: return 'text-gray-500';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed': return <FaCheck className="text-green-500" />;
-      case 'in-progress': return <FaClock className="text-blue-500" />;
-      case 'pending': return <FaExclamationTriangle className="text-yellow-500" />;
-      default: return <FaClock className="text-gray-500" />;
-    }
-  };
-
   const getStatusText = (status) => {
     switch (status) {
+      case 'done':
       case 'completed': return 'Выполнено';
       case 'in-progress': return 'В работе';
-      case 'pending': return 'Ожидает';
+      case 'todo':
+      case 'pending': return 'К выполнению';
       default: return 'Неизвестно';
     }
   };
 
-  const renderTasks = () => (
-    <div className="space-y-4">
-      {tasks.map((task) => (
-        <div key={task.id} className="bg-white rounded-xl p-4 shadow-md">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-start space-x-3 flex-1">
-              <button className={`
-                mt-1 p-2 rounded-lg transition-colors
-                ${task.completed 
-                  ? 'bg-green-100 text-green-600' 
-                  : 'bg-gray-100 text-gray-400 hover:bg-green-100 hover:text-green-600'
-                }
-              `}>
-                <FaCheck className="text-sm" />
-              </button>
-              
-              <div className="flex-1">
-                <h4 className={`font-semibold ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                  {task.title}
-                </h4>
-                <p className="text-sm text-gray-600 mt-1">{task.description || 'Без описания'}</p>
-                
-                <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                  <span className="bg-gray-100 px-2 py-1 rounded">
-                    {task.assignee ? task.assignee.displayName : 'Не назначено'}
-                  </span>
-                  <span className={`font-medium ${getPriorityColor(task.priority)}`}>
-                    {task.priorityText}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2 text-sm">
-              {getStatusIcon(task.status)}
-              <span className={`
-                ${task.status === 'completed' ? 'text-green-600' :
-                  task.status === 'in-progress' ? 'text-blue-600' : 'text-yellow-600'}
-              `}>
-                {getStatusText(task.status)}
-              </span>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between text-sm text-gray-600 pt-3 border-t border-gray-100">
-            <span>
-              {task.dueDate ? `До ${task.dueDate.toLocaleDateString('ru-RU')}` : 'Без дедлайна'}
-            </span>
-            <div className="flex space-x-2">
-              <button className="text-[#7370fd] hover:text-[#7370fd]/80">
-                <FaEdit className="text-sm" />
-              </button>
-              <button className="text-red-500 hover:text-red-600">
-                <FaTrash className="text-sm" />
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+
 
   const renderTeam = () => (
     <div className="space-y-4">
@@ -447,7 +468,13 @@ const handleInviteClick = () => {
                 <span>Добавить задачу</span>
               </motion.button>
             </div>
-            {renderTasks()}
+            <TasksTable
+              tasks={tasks}
+              onEdit={handleTaskEdit}
+              onDelete={handleTaskDelete}
+              onToggleComplete={handleTaskToggleComplete}
+              onStatusChange={handleTaskStatusChange}
+            />
           </div>
         )}
         
@@ -487,6 +514,45 @@ const handleInviteClick = () => {
         projectId={params.id}
         loading={loading}
       />
+
+      {/* Уведомления */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          className="fixed bottom-4 left-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50"
+        >
+          <div className="flex items-center justify-between">
+            <span>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="ml-4 text-white hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {successMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          className="fixed bottom-4 left-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50"
+        >
+          <div className="flex items-center justify-between">
+            <span>{successMessage}</span>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="ml-4 text-white hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

@@ -50,6 +50,10 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    MozUserSelect: 'none',
+    msUserSelect: 'none',
   };
 
   // Cleanup таймера при размонтировании
@@ -64,6 +68,9 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
   const startLongPress = (e) => {
     // Предотвращаем long press на кнопках
     if (e.target.closest('button')) return;
+    
+    // Предотвращаем выделение текста
+    e.preventDefault();
     
     const timer = setTimeout(() => {
       setIsLongPressing(true);
@@ -97,6 +104,8 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
   };
 
   const handleTouchStart = (e) => {
+    // Предотвращаем выделение текста на мобильных устройствах
+    e.preventDefault();
     startLongPress(e);
   };
 
@@ -161,7 +170,7 @@ function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={`bg-white rounded-xl p-4 shadow-md mb-3 transition-all ${
+      className={`bg-white rounded-xl p-4 shadow-md mb-3 transition-all select-none ${
         isLongPressing 
           ? 'cursor-grabbing scale-105 shadow-lg' 
           : 'cursor-pointer hover:shadow-lg'

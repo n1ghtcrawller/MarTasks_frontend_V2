@@ -63,6 +63,7 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
       case 'in-progress': return <FaClock className="text-blue-500" />;
       case 'todo':
       case 'pending': return <FaExclamationTriangle className="text-yellow-500" />;
+      case 'backlog': return <FaFolder className="text-gray-500" />;
       default: return <FaClock className="text-gray-500" />;
     }
   };
@@ -74,6 +75,7 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
       case 'in-progress': return 'В работе';
       case 'todo':
       case 'pending': return 'К выполнению';
+      case 'backlog': return 'Бэклог';
       default: return 'Неизвестно';
     }
   };
@@ -167,10 +169,10 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
 // Компонент для колонки статуса
 function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) {
   return (
-    <div className="flex-1 bg-gray-50 rounded-xl p-4 min-h-[400px]">
+    <div className="bg-gray-50 rounded-xl p-4 min-h-[300px] w-full">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-800">{title}</h3>
-        <span className="bg-white text-gray-600 px-2 py-1 rounded-full text-sm">
+        <h3 className="font-semibold text-gray-800 text-sm md:text-base">{title}</h3>
+        <span className="bg-white text-gray-600 px-2 py-1 rounded-full text-xs">
           {tasks.length}
         </span>
       </div>
@@ -186,6 +188,11 @@ function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) 
               onToggleComplete={onToggleComplete}
             />
           ))}
+          {tasks.length === 0 && (
+            <div className="text-center text-gray-400 text-sm py-8">
+              Нет задач
+            </div>
+          )}
         </div>
       </SortableContext>
     </div>
@@ -211,12 +218,14 @@ export default function TasksTable({
 
   // Группируем задачи по статусам (согласно API документации)
   const tasksByStatus = {
+    backlog: tasks.filter(task => task.status === 'backlog'),
     todo: tasks.filter(task => task.status === 'todo' || task.status === 'pending'),
     'in-progress': tasks.filter(task => task.status === 'in_progress'),
     done: tasks.filter(task => task.status === 'done' || task.status === 'completed'),
   };
 
   const statusColumns = [
+    { id: 'backlog', title: 'Бэклог', tasks: tasksByStatus.backlog },
     { id: 'todo', title: 'К выполнению', tasks: tasksByStatus.todo },
     { id: 'in-progress', title: 'В работе', tasks: tasksByStatus['in-progress'] },
     { id: 'done', title: 'Выполнено', tasks: tasksByStatus.done },
@@ -240,7 +249,7 @@ export default function TasksTable({
     
     // Проверяем, в какую колонку перетащили задачу
     const overElement = over.id;
-    if (typeof overElement === 'string' && ['todo', 'in-progress', 'done'].includes(overElement)) {
+    if (typeof overElement === 'string' && ['backlog', 'todo', 'in-progress', 'done'].includes(overElement)) {
       newStatus = overElement;
     } else {
       // Если перетащили на другую задачу, определяем статус по контексту
@@ -266,7 +275,7 @@ export default function TasksTable({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex space-x-4 overflow-x-auto pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {statusColumns.map((column) => (
             <StatusColumn
               key={column.id}

@@ -202,6 +202,7 @@ const handleInviteClick = () => {
       case 'in-progress': return 'В работе';
       case 'todo':
       case 'pending': return 'К выполнению';
+      case 'backlog': return 'Бэклог';
       default: return 'Неизвестно';
     }
   };

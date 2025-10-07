@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '../../contexts/AppContext';
 import CreateTaskForm from '../../components/CreateTaskForm';
 import TasksTable from '../../components/TasksTable';
+import TaskModal from '../../components/TaskModal';
 import { withVibration, VIBRATION_PATTERNS } from '../../utils/vibration';
 import { 
   FaArrowLeft, 
@@ -45,6 +46,8 @@ export default function ProjectDetailPage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateTaskForm, setShowCreateTaskForm] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -106,8 +109,49 @@ export default function ProjectDetailPage() {
   };
 
   const handleTaskEdit = (taskId) => {
-    // TODO: Реализовать редактирование задачи
-    console.log('Edit task:', taskId);
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setSelectedTask(task);
+      setShowTaskModal(true);
+    }
+  };
+
+  const handleTaskView = (taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setSelectedTask(task);
+      setShowTaskModal(true);
+    }
+  };
+
+  const handleTaskSave = async (taskId, taskData) => {
+    try {
+      setError(null);
+      setSuccessMessage(null);
+      
+      // Обновляем задачу через API
+      await updateTask(taskId, taskData);
+      
+      // Обновляем локальное состояние задач
+      const updatedTasks = await loadProjectTasks(params.id);
+      setTasks(updatedTasks);
+      
+      setSuccessMessage('Задача успешно обновлена');
+      
+      // Автоматически скрываем сообщение через 3 секунды
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to update task:', error);
+      setError(`Ошибка при обновлении задачи: ${error.message}`);
+      
+      // Автоматически скрываем ошибку через 5 секунд
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleCloseTaskModal = () => {
+    setShowTaskModal(false);
+    setSelectedTask(null);
   };
 
   const handleTaskDelete = async (taskId) => {
@@ -199,7 +243,7 @@ const handleInviteClick = () => {
     switch (status) {
       case 'done':
       case 'completed': return 'Выполнено';
-      case 'in-progress': return 'В работе';
+      case 'in_progress': return 'В работе';
       case 'todo':
       case 'pending': return 'К выполнению';
       case 'backlog': return 'Бэклог';
@@ -472,6 +516,7 @@ const handleInviteClick = () => {
             <TasksTable
               tasks={tasks}
               onEdit={handleTaskEdit}
+              onView={handleTaskView}
               onDelete={handleTaskDelete}
               onToggleComplete={handleTaskToggleComplete}
               onStatusChange={handleTaskStatusChange}
@@ -513,6 +558,17 @@ const handleInviteClick = () => {
         onClose={handleCloseCreateTaskForm}
         onSubmit={handleCreateTask}
         projectId={params.id}
+        loading={loading}
+      />
+
+      {/* Модальное окно задачи */}
+      <TaskModal
+        isOpen={showTaskModal}
+        onClose={handleCloseTaskModal}
+        task={selectedTask}
+        onSave={handleTaskSave}
+        onDelete={handleTaskDelete}
+        members={members}
         loading={loading}
       />
 

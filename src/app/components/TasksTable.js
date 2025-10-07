@@ -33,7 +33,7 @@ import {
 } from 'react-icons/fa';
 
 // Компонент для отдельной задачи
-function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
+function TaskCard({ task, onEdit, onView, onDelete, onToggleComplete }) {
   const {
     attributes,
     listeners,
@@ -62,7 +62,7 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
     switch (status) {
       case 'done':
       case 'completed': return <FaCheck className="text-green-500" />;
-      case 'in-progress': return <FaClock className="text-blue-500" />;
+      case 'in_progress': return <FaClock className="text-blue-500" />;
       case 'todo':
       case 'pending': return <FaExclamationTriangle className="text-yellow-500" />;
       case 'backlog': return <FaFolder className="text-gray-500" />;
@@ -74,7 +74,7 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
     switch (status) {
       case 'done':
       case 'completed': return 'Выполнено';
-      case 'in-progress': return 'В работе';
+      case 'in_progress': return 'В работе';
       case 'todo':
       case 'pending': return 'К выполнению';
       case 'backlog': return 'Бэклог';
@@ -92,6 +92,11 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
       className="bg-white rounded-xl p-4 shadow-md mb-3 cursor-grab active:cursor-grabbing"
       {...attributes}
       {...listeners}
+      onClick={(e) => {
+        // Предотвращаем открытие модального окна при клике на кнопки
+        if (e.target.closest('button')) return;
+        onView(task.id);
+      }}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3 flex-1">
@@ -169,9 +174,9 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
 }
 
 // Компонент для колонки статуса
-function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) {
+function StatusColumn({ id, title, tasks, onEdit, onView, onDelete, onToggleComplete }) {
   // Определяем, является ли колонка активной для перетаскивания
-  const isDragTarget = ['todo', 'in-progress', 'done'].includes(id);
+  const isDragTarget = ['todo', 'in_progress', 'done'].includes(id);
   
   // Настраиваем droppable зону только для активных колонок
   const { setNodeRef, isOver } = useDroppable({
@@ -217,6 +222,7 @@ function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) 
               key={task.id}
               task={task}
               onEdit={onEdit}
+              onView={onView}
               onDelete={onDelete}
               onToggleComplete={onToggleComplete}
             />
@@ -240,6 +246,7 @@ function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) 
 export default function TasksTable({ 
   tasks, 
   onEdit, 
+  onView,
   onDelete, 
   onToggleComplete, 
   onStatusChange 
@@ -257,14 +264,14 @@ export default function TasksTable({
   const tasksByStatus = {
     backlog: tasks.filter(task => task.status === 'backlog'),
     todo: tasks.filter(task => task.status === 'todo' || task.status === 'pending'),
-    'in-progress': tasks.filter(task => task.status === 'in_progress'),
+    'in_progress': tasks.filter(task => task.status === 'in_progress'),
     done: tasks.filter(task => task.status === 'done' || task.status === 'completed'),
   };
 
   const statusColumns = [
     { id: 'backlog', title: 'Бэклог', tasks: tasksByStatus.backlog },
     { id: 'todo', title: 'К выполнению', tasks: tasksByStatus.todo },
-    { id: 'in-progress', title: 'В работе', tasks: tasksByStatus['in-progress'] },
+    { id: 'in_progress', title: 'В работе', tasks: tasksByStatus['in_progress'] },
     { id: 'done', title: 'Выполнено', tasks: tasksByStatus.done },
   ];
 
@@ -288,13 +295,13 @@ export default function TasksTable({
     const overElement = over.id;
     
     // Если перетащили в колонку (droppable зону)
-    if (typeof overElement === 'string' && ['todo', 'in-progress', 'done'].includes(overElement)) {
+    if (typeof overElement === 'string' && ['todo', 'in_progress', 'done'].includes(overElement)) {
       newStatus = overElement;
     } 
     // Если перетащили на другую задачу, определяем статус по контексту
     else {
       const overTask = tasks.find(task => task.id === over.id);
-      if (overTask && ['todo', 'in-progress', 'done'].includes(overTask.status)) {
+      if (overTask && ['todo', 'in_progress', 'done'].includes(overTask.status)) {
         newStatus = overTask.status;
       } else {
         // Если перетащили в недопустимую колонку, не меняем статус
@@ -326,6 +333,7 @@ export default function TasksTable({
               title={column.title}
               tasks={column.tasks}
               onEdit={onEdit}
+              onView={onView}
               onDelete={onDelete}
               onToggleComplete={onToggleComplete}
             />

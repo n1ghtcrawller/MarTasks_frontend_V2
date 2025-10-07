@@ -169,11 +169,31 @@ function TaskCard({ task, onEdit, onDelete, onToggleComplete }) {
 
 // Компонент для колонки статуса
 function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) {
+  // Определяем, является ли колонка активной для перетаскивания
+  const isDragTarget = ['todo', 'in-progress', 'done'].includes(id);
+  
   return (
-    <div className="bg-gray-50 rounded-xl p-4 min-h-[300px] w-full">
+    <div className={`rounded-xl p-4 min-h-[300px] w-full ${
+      isDragTarget 
+        ? 'bg-gray-50' 
+        : 'bg-gray-100 opacity-75'
+    }`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-800 text-sm md:text-base">{title}</h3>
-        <span className="bg-white text-gray-600 px-2 py-1 rounded-full text-xs">
+        <h3 className={`font-semibold text-sm md:text-base ${
+          isDragTarget 
+            ? 'text-gray-800' 
+            : 'text-gray-500'
+        }`}>
+          {title}
+          {!isDragTarget && (
+            <span className="ml-2 text-xs text-gray-400">(только просмотр)</span>
+          )}
+        </h3>
+        <span className={`px-2 py-1 rounded-full text-xs ${
+          isDragTarget 
+            ? 'bg-white text-gray-600' 
+            : 'bg-gray-200 text-gray-500'
+        }`}>
           {tasks.length}
         </span>
       </div>
@@ -190,7 +210,11 @@ function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) 
             />
           ))}
           {tasks.length === 0 && (
-            <div className="text-center text-gray-400 text-sm py-8">
+            <div className={`text-center text-sm py-8 ${
+              isDragTarget 
+                ? 'text-gray-400' 
+                : 'text-gray-300'
+            }`}>
               Нет задач
             </div>
           )}
@@ -249,14 +273,18 @@ export default function TasksTable({
     let newStatus = activeTask.status;
     
     // Проверяем, в какую колонку перетащили задачу
+    // Разрешаем перетаскивание только в: todo, in-progress, done (исключаем backlog)
     const overElement = over.id;
-    if (typeof overElement === 'string' && ['backlog', 'todo', 'in-progress', 'done'].includes(overElement)) {
+    if (typeof overElement === 'string' && ['todo', 'in-progress', 'done'].includes(overElement)) {
       newStatus = overElement;
     } else {
       // Если перетащили на другую задачу, определяем статус по контексту
       const overTask = tasks.find(task => task.id === over.id);
-      if (overTask) {
+      if (overTask && ['todo', 'in-progress', 'done'].includes(overTask.status)) {
         newStatus = overTask.status;
+      } else {
+        // Если перетащили в недопустимую колонку, не меняем статус
+        return;
       }
     }
 
@@ -292,7 +320,7 @@ export default function TasksTable({
         
         <DragOverlay>
           {activeTask ? (
-            <div className="bg-white rounded-xl p-4 shadow-lg opacity-90 rotate-3 scale-105">
+            <div className="bg-white rounded-xl p-4 shadow-lg opacity-90 scale-105">
               <div className="flex items-center space-x-2 mb-2">
                 <FaGripVertical className="text-gray-400" />
                 <span className="font-semibold text-gray-800">{activeTask.title}</span>

@@ -10,6 +10,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -172,12 +173,23 @@ function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) 
   // Определяем, является ли колонка активной для перетаскивания
   const isDragTarget = ['todo', 'in-progress', 'done'].includes(id);
   
+  // Настраиваем droppable зону только для активных колонок
+  const { setNodeRef, isOver } = useDroppable({
+    id: id,
+    disabled: !isDragTarget,
+  });
+  
   return (
-    <div className={`rounded-xl p-4 min-h-[300px] w-full ${
-      isDragTarget 
-        ? 'bg-gray-50' 
-        : 'bg-gray-100 opacity-75'
-    }`}>
+    <div 
+      ref={setNodeRef}
+      className={`rounded-xl p-4 min-h-[300px] w-full transition-colors ${
+        isDragTarget 
+          ? isOver 
+            ? 'bg-blue-50 border-2 border-blue-300' 
+            : 'bg-gray-50'
+          : 'bg-gray-100 opacity-75'
+      }`}
+    >
       <div className="flex items-center justify-between mb-4">
         <h3 className={`font-semibold text-sm md:text-base ${
           isDragTarget 
@@ -215,7 +227,7 @@ function StatusColumn({ id, title, tasks, onEdit, onDelete, onToggleComplete }) 
                 ? 'text-gray-400' 
                 : 'text-gray-300'
             }`}>
-              Нет задач
+              {isOver ? 'Отпустите задачу здесь' : 'Нет задач'}
             </div>
           )}
         </div>
@@ -273,12 +285,14 @@ export default function TasksTable({
     let newStatus = activeTask.status;
     
     // Проверяем, в какую колонку перетащили задачу
-    // Разрешаем перетаскивание только в: todo, in-progress, done (исключаем backlog)
     const overElement = over.id;
+    
+    // Если перетащили в колонку (droppable зону)
     if (typeof overElement === 'string' && ['todo', 'in-progress', 'done'].includes(overElement)) {
       newStatus = overElement;
-    } else {
-      // Если перетащили на другую задачу, определяем статус по контексту
+    } 
+    // Если перетащили на другую задачу, определяем статус по контексту
+    else {
       const overTask = tasks.find(task => task.id === over.id);
       if (overTask && ['todo', 'in-progress', 'done'].includes(overTask.status)) {
         newStatus = overTask.status;

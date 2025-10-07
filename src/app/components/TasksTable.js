@@ -27,7 +27,19 @@ import {
   FaExclamationTriangle, 
   FaEdit, 
   FaTrash,
-  FaGripVertical
+  FaGripVertical,
+  FaArrowLeft, 
+  FaPlus, 
+  FaEdit, 
+  FaTrash, 
+  FaUsers, 
+  FaCalendarAlt,
+  FaCheck,
+  FaClock,
+  FaExclamationTriangle,
+  FaFolder,
+  FaChartBar,
+  FaComments
 } from 'react-icons/fa';
 
 // Компонент для отдельной задачи
